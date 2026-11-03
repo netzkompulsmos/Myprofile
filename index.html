@@ -1,0 +1,1394 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Prevent TypeError when extensions or test harnesses reassign window.fetch -->
+    <script>
+      (function() {
+        try {
+          var _nativeFetch = window.fetch;
+          var _boundNative = _nativeFetch ? _nativeFetch.bind(window) : undefined;
+          var _activeFetch = _boundNative;
+          var desc = {
+            get: function() {
+              return _activeFetch;
+            },
+            set: function(fn) {
+              _activeFetch = fn;
+            },
+            configurable: true,
+            enumerable: true
+          };
+          Object.defineProperty(window, 'fetch', desc);
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            try {
+              Object.defineProperty(Window.prototype, 'fetch', desc);
+            } catch (e1) {}
+          }
+        } catch (e2) {}
+      })();
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hollyoak's Plucky Sprout Squad - Meadowbell</title>
+    <meta name="description" content="Sunny hand-painted anime landing hero for Hollyoak's Plucky Sprout Squad animated kids' farming series by Meadowbell Studio." />
+    <meta property="og:title" content="Hollyoak's Plucky Sprout Squad - Meadowbell" />
+    <meta property="og:description" content="Sunny hand-painted anime landing hero for Hollyoak's Plucky Sprout Squad animated kids' farming series by Meadowbell Studio." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Self-hosted fonts -->
+    <style>
+      @font-face {
+        font-family: 'Grandstander';
+        font-style: normal;
+        font-weight: 900;
+        font-display: swap;
+        src: url('/fonts/grandstander-900.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('/fonts/inter-latin.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url('/fonts/inter-latin.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+    </style>
+
+    <!-- Google Fonts fallback -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@900&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+      :root {
+        --u: calc(100vw / 1440);
+        --green-btn: #5b875c;
+        --blue-shadow: rgba(28, 70, 120, 0.28);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      html, body {
+        width: 100%;
+        min-height: 100%;
+        background-color: #559ad6;
+        color: #ffffff;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* 1440x1280 Hero Frame */
+      .hero-frame {
+        position: relative;
+        width: 100vw;
+        height: calc(1280 * var(--u));
+        overflow: hidden;
+        user-select: none;
+      }
+
+      /* Scene: plate + video overlay */
+      .hero-scene {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .scene-plate {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .scene-video {
+        position: absolute;
+        top: -6.25%;
+        left: 0;
+        width: 100%;
+        height: 112.5%;
+        object-fit: fill;
+        display: block;
+      }
+
+      /* Desktop contents display to position exact frame units */
+      .nav-group,
+      .copy-group,
+      .chapters-group,
+      .cards-group {
+        display: contents;
+      }
+
+      /* ---------------- Desktop Placement (Frame Units) ---------------- */
+
+      /* Nav */
+      #logo {
+        position: absolute;
+        left: calc(31 * var(--u));
+        top: calc(23 * var(--u));
+        font-family: 'Grandstander', cursive, sans-serif;
+        font-weight: 900;
+        font-size: calc(29.5 * var(--u));
+        line-height: 1;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: calc(9 * var(--u));
+        text-decoration: none;
+        z-index: 10;
+        cursor: pointer;
+      }
+
+      .sprout-icon {
+        width: calc(26 * var(--u));
+        height: calc(26 * var(--u));
+        flex-shrink: 0;
+      }
+
+      #nav-pill {
+        position: absolute;
+        left: calc(443 * var(--u));
+        top: calc(13 * var(--u));
+        width: calc(546 * var(--u));
+        height: calc(50 * var(--u));
+        border-radius: calc(25 * var(--u));
+        background: rgba(173, 196, 174, 0.45);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        display: flex;
+        align-items: center;
+        padding-left: calc(49 * var(--u));
+        gap: calc(54 * var(--u));
+        z-index: 10;
+        box-shadow: 0 calc(4 * var(--u)) calc(12 * var(--u)) rgba(0, 0, 0, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .nav-pill-item {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: calc(19.5 * var(--u));
+        color: #ffffff;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+      }
+
+      .nav-pill-item:hover {
+        opacity: 0.82;
+      }
+
+      .nav-pill-dot {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: calc(18 * var(--u));
+        margin: 0 calc(-27 * var(--u));
+        pointer-events: none;
+      }
+
+      #top-join {
+        position: absolute;
+        left: calc(1311 * var(--u));
+        top: calc(14 * var(--u));
+        width: calc(105 * var(--u));
+        height: calc(45 * var(--u));
+        border-radius: calc(22.5 * var(--u));
+        background: #ffffff;
+        color: var(--green-btn);
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: calc(18.5 * var(--u));
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        z-index: 10;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 calc(2 * var(--u)) calc(10 * var(--u)) rgba(0, 0, 0, 0.1);
+      }
+
+      /* Copy, Centred */
+      #kicker {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        top: calc(203 * var(--u));
+        text-align: center;
+        font-family: 'Grandstander', cursive, sans-serif;
+        font-weight: 900;
+        font-size: calc(40.5 * var(--u));
+        line-height: 1;
+        color: #ffffff;
+        letter-spacing: calc(1.5 * var(--u));
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      #headline {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        top: calc(261 * var(--u));
+        text-align: center;
+        font-family: 'Grandstander', cursive, sans-serif;
+        font-weight: 900;
+        font-size: calc(143.5 * var(--u));
+        line-height: calc(118 * var(--u));
+        color: #ffffff;
+        text-shadow: 0 calc(4 * var(--u)) calc(18 * var(--u)) var(--blue-shadow);
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .hl-line {
+        display: block;
+      }
+
+      #subline {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        top: calc(516 * var(--u));
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+        font-weight: 400;
+        font-size: calc(21.2 * var(--u));
+        line-height: calc(27 * var(--u));
+        color: #ffffff;
+        z-index: 10;
+        pointer-events: none;
+        text-shadow: 0 calc(2 * var(--u)) calc(8 * var(--u)) rgba(28, 70, 120, 0.22);
+      }
+
+      #hero-join {
+        position: absolute;
+        left: calc(550 * var(--u));
+        top: calc(617 * var(--u));
+        width: calc(144 * var(--u));
+        height: calc(59 * var(--u));
+        border-radius: calc(29.5 * var(--u));
+        background: #ffffff;
+        color: var(--green-btn);
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: calc(22 * var(--u));
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        z-index: 10;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 calc(4 * var(--u)) calc(16 * var(--u)) rgba(0, 0, 0, 0.12);
+      }
+
+      #hero-watch {
+        position: absolute;
+        left: calc(707 * var(--u));
+        top: calc(619 * var(--u));
+        width: calc(184 * var(--u));
+        height: calc(58 * var(--u));
+        border-radius: calc(29 * var(--u));
+        background: rgba(204, 218, 173, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: calc(19.5 * var(--u));
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: calc(9 * var(--u));
+        text-decoration: none;
+        z-index: 10;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        cursor: pointer;
+        box-shadow: 0 calc(4 * var(--u)) calc(16 * var(--u)) rgba(0, 0, 0, 0.08);
+      }
+
+      .btn-play-icon {
+        width: calc(13 * var(--u));
+        height: calc(15 * var(--u));
+        flex-shrink: 0;
+      }
+
+      /* Chapters row */
+      #chapters-title {
+        position: absolute;
+        left: calc(137 * var(--u));
+        top: calc(866 * var(--u));
+        font-family: 'Grandstander', cursive, sans-serif;
+        font-weight: 900;
+        font-size: calc(36 * var(--u));
+        line-height: 1;
+        color: #ffffff;
+        letter-spacing: calc(1.2 * var(--u));
+        z-index: 10;
+      }
+
+      #chapters-link {
+        position: absolute;
+        right: calc(132 * var(--u));
+        top: calc(876 * var(--u));
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: calc(22 * var(--u));
+        line-height: 1;
+        color: #ffffff;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: calc(4 * var(--u));
+        z-index: 10;
+        cursor: pointer;
+      }
+
+      .chevron {
+        display: inline-block;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      #chapters-link:hover .chevron {
+        transform: translateX(calc(4 * var(--u)));
+      }
+
+      /* Chapter cards */
+      .chapter-card {
+        position: absolute;
+        top: calc(913 * var(--u));
+        width: calc(378 * var(--u));
+        height: calc(273 * var(--u));
+        border-radius: calc(15 * var(--u));
+        overflow: hidden;
+        z-index: 10;
+        cursor: pointer;
+        box-shadow: 0 calc(12 * var(--u)) calc(28 * var(--u)) rgba(18, 45, 65, 0.26);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background-color: #2b5d84;
+      }
+
+      #card-1 {
+        left: calc(133 * var(--u));
+      }
+
+      #card-2 {
+        left: calc(531 * var(--u));
+      }
+
+      #card-3 {
+        left: calc(929 * var(--u));
+      }
+
+      .card-art {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .card-play-btn {
+        position: absolute;
+        left: calc(20 * var(--u));
+        bottom: calc(20 * var(--u));
+        width: calc(32 * var(--u));
+        height: calc(32 * var(--u));
+        pointer-events: none;
+        z-index: 2;
+        filter: drop-shadow(0 calc(2 * var(--u)) calc(6 * var(--u)) rgba(0, 0, 0, 0.45));
+        transition: transform 0.25s ease;
+      }
+
+      /* ---------------- Hover States ---------------- */
+      .chapter-card:hover {
+        transform: translateY(calc(-8 * var(--u)));
+        box-shadow: 0 calc(20 * var(--u)) calc(38 * var(--u)) rgba(18, 45, 65, 0.38);
+      }
+
+      .chapter-card:hover .card-art {
+        transform: scale(1.05);
+      }
+
+      .chapter-card:hover .card-play-btn {
+        transform: scale(1.1);
+      }
+
+      .pill-interactive {
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
+      }
+
+      #nav-pill:hover,
+      #top-join:hover,
+      #hero-join:hover,
+      #hero-watch:hover {
+        transform: translateY(calc(-2 * var(--u)));
+      }
+
+      #top-join:hover,
+      #hero-join:hover {
+        box-shadow: 0 calc(6 * var(--u)) calc(18 * var(--u)) rgba(0, 0, 0, 0.16);
+      }
+
+      #hero-watch:hover {
+        background: rgba(204, 218, 173, 0.72);
+      }
+
+      /* ---------------- Reduced Motion ---------------- */
+      @media (prefers-reduced-motion: reduce) {
+        .scene-video {
+          display: none !important;
+        }
+        *, *::before, *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+
+      /* ---------------- Phones (≤ 820px) ---------------- */
+      @media (max-width: 820px) {
+        :root {
+          --u: 1px;
+        }
+
+        .hero-frame {
+          width: 100%;
+          height: auto;
+          min-height: 100vh;
+          overflow: hidden;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding-bottom: 24px;
+        }
+
+        .hero-scene {
+          position: absolute;
+          top: 0;
+          left: 18%;
+          transform: translateX(-18%);
+          height: 100%;
+          aspect-ratio: 9 / 8;
+          width: auto;
+          min-width: 100%;
+          z-index: 1;
+        }
+
+        .scene-video {
+          top: -6.25%;
+          left: 0;
+          width: 100%;
+          height: 112.5%;
+          object-fit: fill;
+        }
+
+        /* Nav: compact */
+        .nav-group {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 16px 20px;
+          width: 100%;
+          position: relative;
+          z-index: 10;
+        }
+
+        #logo {
+          position: relative;
+          left: auto;
+          top: auto;
+          font-size: 24px;
+          gap: 7px;
+        }
+
+        .sprout-icon {
+          width: 22px;
+          height: 22px;
+        }
+
+        #nav-pill {
+          display: none;
+        }
+
+        #top-join {
+          position: relative;
+          left: auto;
+          top: auto;
+          width: auto;
+          height: 38px;
+          padding: 0 18px;
+          border-radius: 9999px;
+          font-size: 15px;
+        }
+
+        /* Copy: stacked and centred */
+        .copy-group {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 24px 20px 16px;
+          position: relative;
+          z-index: 10;
+          text-align: center;
+        }
+
+        #kicker {
+          position: relative;
+          left: auto;
+          top: auto;
+          width: auto;
+          font-size: 20px;
+          margin-bottom: 6px;
+        }
+
+        #headline {
+          position: relative;
+          left: auto;
+          top: auto;
+          width: auto;
+          font-size: 51px;
+          line-height: 48px;
+          text-shadow: 0 3px 12px var(--blue-shadow);
+          margin-bottom: 14px;
+        }
+
+        #subline {
+          position: relative;
+          left: auto;
+          top: auto;
+          width: auto;
+          font-size: 15px;
+          line-height: 22px;
+          max-width: 330px;
+          margin-bottom: 22px;
+          text-shadow: 0 2px 6px rgba(28, 70, 120, 0.3);
+        }
+
+        .cta-container {
+          display: flex;
+          flex-direction: row;
+          gap: 12px;
+          justify-content: center;
+          width: 100%;
+        }
+
+        #hero-join {
+          position: relative;
+          left: auto;
+          top: auto;
+          width: auto;
+          min-width: 110px;
+          height: 46px;
+          padding: 0 20px;
+          border-radius: 9999px;
+          font-size: 17px;
+        }
+
+        #hero-watch {
+          position: relative;
+          left: auto;
+          top: auto;
+          width: auto;
+          min-width: 140px;
+          height: 46px;
+          padding: 0 18px;
+          border-radius: 9999px;
+          font-size: 15px;
+          gap: 8px;
+        }
+
+        .btn-play-icon {
+          width: 11px;
+          height: 13px;
+        }
+
+        /* Chapters: swipeable row */
+        .chapters-group {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          position: relative;
+          z-index: 10;
+          margin-top: 24px;
+        }
+
+        .chapters-top-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          padding: 0 20px 10px;
+          width: 100%;
+        }
+
+        #chapters-title {
+          position: relative;
+          left: auto;
+          top: auto;
+          font-size: 24px;
+        }
+
+        #chapters-link {
+          position: relative;
+          right: auto;
+          top: auto;
+          font-size: 15px;
+        }
+
+        .cards-group {
+          display: flex;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+          gap: 14px;
+          padding: 4px 20px 14px;
+          scrollbar-width: none;
+        }
+
+        .cards-group::-webkit-scrollbar {
+          display: none;
+        }
+
+        .chapter-card {
+          position: relative;
+          top: auto;
+          left: auto !important;
+          flex: 0 0 260px;
+          height: 188px;
+          scroll-snap-align: start;
+          border-radius: 12px;
+        }
+
+        .card-play-btn {
+          left: 14px;
+          bottom: 14px;
+          width: 26px;
+          height: 26px;
+        }
+
+        #nav-pill:hover,
+        #top-join:hover,
+        #hero-join:hover,
+        #hero-watch:hover,
+        .chapter-card:hover {
+          transform: none;
+        }
+      }
+
+      /* ---------------- Modal & Interactive Overlays ---------------- */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(14, 30, 48, 0.72);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        padding: 20px;
+      }
+
+      .modal-backdrop.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .modal-box {
+        background: #ffffff;
+        color: #2c4432;
+        width: 100%;
+        max-width: 480px;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 24px 60px rgba(10, 25, 40, 0.35);
+        position: relative;
+        transform: translateY(20px) scale(0.96);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .modal-backdrop.active .modal-box {
+        transform: translateY(0) scale(1);
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        background: #eef3ee;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        font-size: 16px;
+        color: #557056;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease;
+      }
+
+      .modal-close:hover {
+        background: #dfe8e0;
+      }
+
+      .modal-title {
+        font-family: 'Grandstander', cursive, sans-serif;
+        font-weight: 900;
+        font-size: 26px;
+        color: #3b6d3d;
+        line-height: 1.2;
+        margin-bottom: 8px;
+      }
+
+      .modal-desc {
+        font-size: 14.5px;
+        line-height: 1.5;
+        color: #5c7462;
+        margin-bottom: 20px;
+      }
+
+      .modal-form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .modal-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid #d4e2d5;
+        border-radius: 12px;
+        font-size: 15px;
+        font-family: 'Inter', sans-serif;
+        outline: none;
+        transition: border-color 0.2s ease;
+      }
+
+      .modal-input:focus {
+        border-color: #5b875c;
+      }
+
+      .badge-picker-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #4b6651;
+        margin-bottom: -6px;
+      }
+
+      .badge-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .badge-option {
+        padding: 8px 12px;
+        border: 1.5px solid #d4e2d5;
+        border-radius: 10px;
+        background: #f7faf7;
+        font-size: 13px;
+        color: #3f5945;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s ease;
+      }
+
+      .badge-option.selected {
+        border-color: #5b875c;
+        background: #eef6ee;
+        font-weight: 500;
+        color: #275628;
+      }
+
+      .modal-submit {
+        background: #5b875c;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        padding: 13px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        margin-top: 6px;
+        transition: background 0.2s ease;
+      }
+
+      .modal-submit:hover {
+        background: #4b734c;
+      }
+
+      .join-success {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 10px 0;
+      }
+
+      .join-success.active {
+        display: flex;
+      }
+
+      .success-icon {
+        width: 54px;
+        height: 54px;
+        background: #e8f3e9;
+        color: #3b6d3d;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+      }
+
+      .success-title {
+        font-family: 'Grandstander', cursive, sans-serif;
+        font-weight: 900;
+        font-size: 24px;
+        color: #2e5930;
+        margin-bottom: 8px;
+      }
+
+      .success-text {
+        font-size: 14.5px;
+        line-height: 1.5;
+        color: #55705a;
+        margin-bottom: 18px;
+      }
+
+      /* Video Preview Modal */
+      .video-modal-box {
+        max-width: 720px;
+        padding: 20px;
+      }
+
+      .video-wrapper {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #000;
+        margin-bottom: 14px;
+      }
+
+      .preview-video {
+        width: 100%;
+        display: block;
+        max-height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="hero-frame">
+      <!-- Scene: 9:8 background plate + 100% width, 112.5% height, top -6.25% looping video overlay -->
+      <div class="hero-scene">
+        <img
+          class="scene-plate"
+          src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/3ca5d10d-ea2f-4907-876f-33bde169469e.jpg"
+          alt="Sunny Ghibli-inspired meadow hillside with boy and beagle looking up at cumulus clouds"
+        />
+        <video
+          class="scene-video"
+          src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/d2cb5bef-f92b-4e91-ae93-8dc6555e56ac.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          aria-hidden="true"
+        ></video>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-group">
+        <!-- Logo at (31, 23) -->
+        <a href="#" class="logo" id="logo" aria-label="Meadowbell Studio Home">
+          <svg class="sprout-icon" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 26V13M14 13C14 7.5 19 4 25 4C25 10 20 14 14 13ZM14 15C13 10.5 8.5 7.5 3 8C3 13.5 7.5 17 14 15Z" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Meadowbell
+        </a>
+
+        <!-- Nav pill 546x50 at (443, 13) radius 25 -->
+        <nav class="pill-interactive" id="nav-pill" aria-label="Main Navigation">
+          <a href="#farm" class="nav-pill-item">Farm</a>
+          <span class="nav-pill-dot" aria-hidden="true">·</span>
+          <a href="#gear" class="nav-pill-item">Gear</a>
+          <span class="nav-pill-dot" aria-hidden="true">·</span>
+          <a href="#chapters" class="nav-pill-item">Chapters</a>
+          <span class="nav-pill-dot" aria-hidden="true">·</span>
+          <a href="#crew" class="nav-pill-item">Our Crew</a>
+        </nav>
+
+        <!-- Join us pill 105x45 at (1311, 14) -->
+        <button class="pill-interactive" id="top-join" type="button">Join us</button>
+      </div>
+
+      <!-- Centred Copy -->
+      <div class="copy-group">
+        <!-- Kicker: "HOLLYOAK'S" 40.5px cap top at y = 203 -->
+        <div id="kicker">HOLLYOAK'S</div>
+
+        <!-- Headline: "PLUCKY / SPROUT SQUAD" 143.5px line pitch 118px cap top at y = 261 -->
+        <h1 id="headline">
+          <span class="hl-line" id="hl-line-1">PLUCKY</span>
+          <span class="hl-line" id="hl-line-2">SPROUT SQUAD</span>
+        </h1>
+
+        <!-- Subline: Inter 21.2px / 27px, 3 lines -->
+        <p id="subline">
+          Learn the Ways of the Meadow with<br />
+          Hollyoak's Plucky Sprout Squad! Each chapter is<br />
+          packed with play, chores, and wonder.
+        </p>
+
+        <!-- CTA buttons -->
+        <div class="cta-container">
+          <!-- Join us button: white pill 144x59 at (550, 617) green 22px -->
+          <button class="pill-interactive" id="hero-join" type="button">Join us</button>
+
+          <!-- Watch preview button: translucent mint pill 184x58 at (707, 619) with white rounded play triangle and 19.5px text -->
+          <button class="pill-interactive" id="hero-watch" type="button">
+            <svg class="btn-play-icon" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12.33 6.85C13.22 7.36 13.22 8.64 12.33 9.15L3.33 14.35C2.44 14.86 1.33 14.22 1.33 13.2L1.33 2.8C1.33 1.78 2.44 1.14 3.33 1.65L12.33 6.85Z" fill="#ffffff"/>
+            </svg>
+            Watch preview
+          </button>
+        </div>
+      </div>
+
+      <!-- Chapters row -->
+      <div class="chapters-group">
+        <div class="chapters-top-bar">
+          <!-- Title: "CHAPTERS" 36px at (137, 866) -->
+          <h2 id="chapters-title">CHAPTERS</h2>
+
+          <!-- Link: "browse all chapters ›" 22px right-aligned to x = 1308 -->
+          <a href="#all-chapters" id="chapters-link">
+            browse all chapters <span class="chevron">›</span>
+          </a>
+        </div>
+
+        <!-- Three cards 378x273 at x = 133, 531, 929 (y = 913), radius 15 -->
+        <div class="cards-group">
+          <!-- Card 1: Vegetable garden with tomato stakes and cottage -->
+          <div class="chapter-card" id="card-1" role="button" tabindex="0" aria-label="Chapter 1: The Whispering Tomatoes">
+            <img
+              class="card-art"
+              src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cd2d844f-ae3f-4fa9-8067-b077530b6e71.webp"
+              alt="Chapter 1: Vegetable garden with tomato stakes and a cottage"
+              loading="lazy"
+            />
+            <div class="card-play-btn">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.3 10.77C20.24 11.35 20.24 12.65 19.3 13.23L7.75 20.36C6.75 20.97 5.5 20.26 5.5 19.13L5.5 4.87C5.5 3.74 6.75 3.03 7.75 3.64L19.3 10.77Z" fill="#ffffff"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Card 2: Boy and dog on a hill path among sheep above the sea -->
+          <div class="chapter-card" id="card-2" role="button" tabindex="0" aria-label="Chapter 2: Barnaby and the Coastal Flock">
+            <img
+              class="card-art"
+              src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/48f5b97e-c27c-4afd-9427-eb35aebd1751.webp"
+              alt="Chapter 2: Boy and beagle on a hillside path with sheep above the sea"
+              loading="lazy"
+            />
+            <div class="card-play-btn">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.3 10.77C20.24 11.35 20.24 12.65 19.3 13.23L7.75 20.36C6.75 20.97 5.5 20.26 5.5 19.13L5.5 4.87C5.5 3.74 6.75 3.03 7.75 3.64L19.3 10.77Z" fill="#ffffff"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Card 3: Girl in straw hat flying a kite on a breezy hill -->
+          <div class="chapter-card" id="card-3" role="button" tabindex="0" aria-label="Chapter 3: High Breeze Over Bramble Hill">
+            <img
+              class="card-art"
+              src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cde5384e-ce4d-423f-925a-451b779066e0.webp"
+              alt="Chapter 3: Girl in a straw hat flying a kite on a breezy hill"
+              loading="lazy"
+            />
+            <div class="card-play-btn">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.3 10.77C20.24 11.35 20.24 12.65 19.3 13.23L7.75 20.36C6.75 20.97 5.5 20.26 5.5 19.13L5.5 4.87C5.5 3.74 6.75 3.03 7.75 3.64L19.3 10.77Z" fill="#ffffff"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Join Us Modal -->
+    <div class="modal-backdrop" id="join-modal" aria-hidden="true">
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="join-title">
+        <button class="modal-close" id="join-close" aria-label="Close dialog">&times;</button>
+        <div id="join-content">
+          <h3 class="modal-title" id="join-title">Join the Sprout Squad!</h3>
+          <p class="modal-desc">
+            Get weekly storybooks, seasonal farm recipes, and early screening links from Meadowbell Studio.
+          </p>
+          <form class="modal-form" id="join-form">
+            <input class="modal-input" type="text" placeholder="Your Name or Explorer Name" required />
+            <input class="modal-input" type="email" placeholder="Parent or Family Email" required />
+            <div class="badge-picker-label">Choose your Squad Badge:</div>
+            <div class="badge-options">
+              <div class="badge-option selected" data-badge="Tomato Scout">🍅 Tomato Scout</div>
+              <div class="badge-option" data-badge="Hill Shepherd">🐑 Hill Shepherd</div>
+              <div class="badge-option" data-badge="Breeze Flyer">🪁 Breeze Flyer</div>
+              <div class="badge-option" data-badge="Meadow Blossom">🌼 Meadow Blossom</div>
+            </div>
+            <button class="modal-submit" type="submit">Plant My Badge</button>
+          </form>
+        </div>
+        <!-- Success State inside modal (No window.alert) -->
+        <div class="join-success" id="join-success">
+          <div class="success-icon">🌱</div>
+          <h4 class="success-title">Badge Planted!</h4>
+          <p class="success-text" id="success-msg">Welcome to Hollyoak's Plucky Sprout Squad! You're officially enrolled.</p>
+          <button class="modal-submit" id="success-close" type="button" style="width: auto; padding: 10px 24px;">Back to Meadow</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Watch Preview Video Modal -->
+    <div class="modal-backdrop" id="preview-modal" aria-hidden="true">
+      <div class="modal-box video-modal-box" role="dialog" aria-modal="true" aria-labelledby="preview-title">
+        <button class="modal-close" id="preview-close" aria-label="Close dialog">&times;</button>
+        <h3 class="modal-title" id="preview-title">Hollyoak's Plucky Sprout Squad</h3>
+        <p class="modal-desc" id="preview-desc">
+          Official Meadowbell Series Teaser · Sunny afternoons, friendly sheep, and boundless skies.
+        </p>
+        <div class="video-wrapper">
+          <video
+            class="preview-video"
+            id="modal-video-player"
+            src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/d2cb5bef-f92b-4e91-ae93-8dc6555e56ac.mp4"
+            loop
+            playsinline
+            controls
+          ></video>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entrance Motion & Interactive Scripts (Pure Vanilla JS, No Framework, No Build Step) -->
+    <script>
+      (function() {
+        // Ensure video autoplays safely
+        const sceneVid = document.querySelector('.scene-video');
+        if (sceneVid) {
+          sceneVid.muted = true;
+          const playPromise = sceneVid.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(function() {});
+          }
+        }
+
+        // Web Animations Entrance Timeline
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (!prefersReducedMotion && 'animate' in HTMLElement.prototype) {
+          const easeOutCubic = 'cubic-bezier(0.22, 1, 0.36, 1)';
+          const springSoft = 'cubic-bezier(0.34, 1.35, 0.64, 1)';
+
+          // 1. Logo, nav pill and Join us drop in
+          const logo = document.getElementById('logo');
+          const navPill = document.getElementById('nav-pill');
+          const topJoin = document.getElementById('top-join');
+
+          [logo, navPill, topJoin].forEach((el, index) => {
+            if (!el) return;
+            el.animate([
+              { transform: 'translateY(-28px)', opacity: 0 },
+              { transform: 'translateY(0)', opacity: 1 }
+            ], {
+              duration: 650,
+              delay: index * 60,
+              easing: easeOutCubic,
+              fill: 'forwards'
+            });
+          });
+
+          // 2. Kicker un-blurs
+          const kicker = document.getElementById('kicker');
+          if (kicker) {
+            kicker.animate([
+              { filter: 'blur(14px)', opacity: 0, transform: 'scale(0.97)' },
+              { filter: 'blur(0px)', opacity: 1, transform: 'scale(1)' }
+            ], {
+              duration: 700,
+              delay: 180,
+              easing: easeOutCubic,
+              fill: 'forwards'
+            });
+          }
+
+          // 3. Each headline line springs up out of a blur, 0.16s apart
+          const hlLine1 = document.getElementById('hl-line-1');
+          const hlLine2 = document.getElementById('hl-line-2');
+          const hlBaseDelay = 340;
+
+          [hlLine1, hlLine2].forEach((line, i) => {
+            if (!line) return;
+            line.animate([
+              { transform: 'translateY(45px)', filter: 'blur(16px)', opacity: 0 },
+              { transform: 'translateY(0)', filter: 'blur(0px)', opacity: 1 }
+            ], {
+              duration: 720,
+              delay: hlBaseDelay + (i * 160), // 0.16s apart
+              easing: springSoft,
+              fill: 'forwards'
+            });
+          });
+
+          // 4. Then subline, both buttons, chapters title and link, and three cards rise in turn
+          const subline = document.getElementById('subline');
+          const heroJoin = document.getElementById('hero-join');
+          const heroWatch = document.getElementById('hero-watch');
+          const chaptersTitle = document.getElementById('chapters-title');
+          const chaptersLink = document.getElementById('chapters-link');
+          const card1 = document.getElementById('card-1');
+          const card2 = document.getElementById('card-2');
+          const card3 = document.getElementById('card-3');
+
+          const startAfterHeadline = hlBaseDelay + 160 + 160; // 660ms
+
+          const riseSequence = [
+            { el: subline, delay: startAfterHeadline, y: 24, dur: 600 },
+            { el: heroJoin, delay: startAfterHeadline + 120, y: 24, dur: 550 },
+            { el: heroWatch, delay: startAfterHeadline + 180, y: 24, dur: 550 },
+            { el: chaptersTitle, delay: startAfterHeadline + 280, y: 20, dur: 550 },
+            { el: chaptersLink, delay: startAfterHeadline + 320, y: 20, dur: 550 },
+            { el: card1, delay: startAfterHeadline + 400, y: 35, dur: 600 },
+            { el: card2, delay: startAfterHeadline + 510, y: 35, dur: 600 },
+            { el: card3, delay: startAfterHeadline + 620, y: 35, dur: 600 }
+          ];
+
+          riseSequence.forEach(({ el, delay, y, dur }) => {
+            if (!el) return;
+            el.animate([
+              { transform: 'translateY(' + y + 'px)', opacity: 0 },
+              { transform: 'translateY(0)', opacity: 1 }
+            ], {
+              duration: dur,
+              delay: delay,
+              easing: easeOutCubic,
+              fill: 'forwards'
+            });
+          });
+        }
+
+        // Modals Interaction
+        const joinModal = document.getElementById('join-modal');
+        const joinClose = document.getElementById('join-close');
+        const topJoinBtn = document.getElementById('top-join');
+        const heroJoinBtn = document.getElementById('hero-join');
+        const joinForm = document.getElementById('join-form');
+        const joinContent = document.getElementById('join-content');
+        const joinSuccess = document.getElementById('join-success');
+        const successMsg = document.getElementById('success-msg');
+        const successClose = document.getElementById('success-close');
+
+        function openJoinModal() {
+          if (!joinModal) return;
+          if (joinContent) joinContent.style.display = 'block';
+          if (joinSuccess) joinSuccess.classList.remove('active');
+          joinModal.classList.add('active');
+          joinModal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeJoinModal() {
+          if (!joinModal) return;
+          joinModal.classList.remove('active');
+          joinModal.setAttribute('aria-hidden', 'true');
+        }
+
+        if (topJoinBtn) topJoinBtn.addEventListener('click', openJoinModal);
+        if (heroJoinBtn) heroJoinBtn.addEventListener('click', openJoinModal);
+        if (joinClose) joinClose.addEventListener('click', closeJoinModal);
+        if (successClose) successClose.addEventListener('click', closeJoinModal);
+
+        if (joinModal) {
+          joinModal.addEventListener('click', function(e) {
+            if (e.target === joinModal) closeJoinModal();
+          });
+        }
+
+        // Badge picker in Join form
+        const badgeOptions = document.querySelectorAll('.badge-option');
+        badgeOptions.forEach(opt => {
+          opt.addEventListener('click', () => {
+            badgeOptions.forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+          });
+        });
+
+        // Form submit (in-modal feedback without window.alert)
+        if (joinForm) {
+          joinForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const selectedBadge = document.querySelector('.badge-option.selected')?.getAttribute('data-badge') || 'Sprout Scout';
+            if (successMsg) {
+              successMsg.textContent = "Welcome to Meadowbell! You're officially enrolled as a " + selectedBadge + " in Hollyoak's Plucky Sprout Squad.";
+            }
+            if (joinContent) joinContent.style.display = 'none';
+            if (joinSuccess) joinSuccess.classList.add('active');
+            joinForm.reset();
+          });
+        }
+
+        // Preview Video Modal
+        const previewModal = document.getElementById('preview-modal');
+        const previewClose = document.getElementById('preview-close');
+        const heroWatchBtn = document.getElementById('hero-watch');
+        const modalVideo = document.getElementById('modal-video-player');
+        const previewTitle = document.getElementById('preview-title');
+        const previewDesc = document.getElementById('preview-desc');
+
+        const chapterDetails = {
+          'card-1': {
+            title: 'Chapter 1: The Whispering Tomatoes',
+            desc: 'Tommy discovers tiny blossom sprites caring for the vines behind the old greenhouse.'
+          },
+          'card-2': {
+            title: 'Chapter 2: Barnaby and the Coastal Flock',
+            desc: 'When the meadow sheep venture down the sea cliff path, Barnaby bounds to the rescue.'
+          },
+          'card-3': {
+            title: 'Chapter 3: High Breeze Over Bramble Hill',
+            desc: 'Mae untangles a golden kite line caught high in the ancient windbreak oak.'
+          }
+        };
+
+        function openPreviewModal(title, desc) {
+          if (!previewModal) return;
+          if (title && previewTitle) previewTitle.textContent = title;
+          if (desc && previewDesc) previewDesc.textContent = desc;
+          previewModal.classList.add('active');
+          previewModal.setAttribute('aria-hidden', 'false');
+          if (modalVideo) {
+            modalVideo.currentTime = 0;
+            modalVideo.play().catch(() => {});
+          }
+        }
+
+        function closePreviewModal() {
+          if (!previewModal) return;
+          previewModal.classList.remove('active');
+          previewModal.setAttribute('aria-hidden', 'true');
+          if (modalVideo) {
+            modalVideo.pause();
+          }
+        }
+
+        if (heroWatchBtn) {
+          heroWatchBtn.addEventListener('click', function() {
+            openPreviewModal(
+              "Hollyoak's Plucky Sprout Squad",
+              "Official Meadowbell Series Teaser · Sunny afternoons, friendly sheep, and boundless skies."
+            );
+          });
+        }
+
+        if (previewClose) previewClose.addEventListener('click', closePreviewModal);
+        if (previewModal) {
+          previewModal.addEventListener('click', function(e) {
+            if (e.target === previewModal) closePreviewModal();
+          });
+        }
+
+        // Chapter Card Clicks
+        ['card-1', 'card-2', 'card-3'].forEach(id => {
+          const card = document.getElementById(id);
+          if (!card) return;
+          card.addEventListener('click', () => {
+            const data = chapterDetails[id];
+            openPreviewModal(data.title, data.desc);
+          });
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              const data = chapterDetails[id];
+              openPreviewModal(data.title, data.desc);
+            }
+          });
+        });
+
+        // "browse all chapters" link
+        const chaptersLink = document.getElementById('chapters-link');
+        if (chaptersLink) {
+          chaptersLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            openPreviewModal(
+              'Hollyoak Season 1: Complete Episode Guide',
+              'Season 1 includes 8 episodes exploring seasonal meadow planting, kite building, and seaside shepherd trails.'
+            );
+          });
+        }
+
+        // Nav pill link actions
+        document.querySelectorAll('.nav-pill-item').forEach(item => {
+          item.addEventListener('click', function(e) {
+            const target = this.getAttribute('href');
+            if (target === '#chapters') {
+              e.preventDefault();
+              const chTitle = document.getElementById('chapters-title');
+              if (chTitle) chTitle.scrollIntoView({ behavior: 'smooth' });
+            } else if (target === '#farm' || target === '#gear' || target === '#crew') {
+              e.preventDefault();
+              const sectionNames = {
+                '#farm': 'The Sunlit Meadow & Farmstead',
+                '#gear': 'Squad Gardening & Outdoor Explorer Gear',
+                '#crew': 'Tommy, Barnaby the Beagle, Mae, & Old Man Hollyoak'
+              };
+              openPreviewModal(
+                sectionNames[target],
+                'Explore the handcrafted world and characters of Meadowbell Studio.'
+              );
+            }
+          });
+        });
+
+        // ESC key closes modals
+        window.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') {
+            closeJoinModal();
+            closePreviewModal();
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
